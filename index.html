@@ -112,8 +112,8 @@
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold text-purple-200">📊 نظام توزيع الأسئلة</label>
                     <select id="exam-mode" onchange="toggleCountInputs()" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
-                        <option value="auto" selected class="bg-[#141123]">✨ متنوع تلقائياً (الذكاء الاصطناعي يحدد الخليط المناسب)</option>
-                        <option value="custom" class="bg-[#141123]">⚙️ تحديد عدد الأسئلة يدوياً (إلكتروني + كتابي)</option>
+                        <option value="auto" selected class="bg-[#141123]">✨ متنوع تلقائياً (الذكاء الاصطناعي يوزعهم)</option>
+                        <option value="custom" class="bg-[#141123]">⚙️ تحديد يدوي لكل نوع (إلكتروني + كتابي)</option>
                     </select>
                 </div>
 
@@ -130,8 +130,21 @@
                 </div>
             </div>
 
-            <!-- Custom Counts Section -->
-            <div id="custom-counts-box" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-purple-500/20">
+            <!-- Auto Total Count Section -->
+            <div id="auto-count-box" class="space-y-2 pt-2 border-t border-purple-500/20">
+                <label class="block text-sm font-semibold text-amber-300">🎯 العدد الإجمالي للأسئلة المتنوعة</label>
+                <select id="total-auto-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
+                    <option value="5">5 أسئلة (خليط سريع)</option>
+                    <option value="10" selected>10 أسئلة (متوازن)</option>
+                    <option value="15">15 سؤالاً (شامل)</option>
+                    <option value="20">20 سؤالاً (مكثف)</option>
+                    <option value="30">30 سؤالاً (مراجعة نهائية)</option>
+                </select>
+                <p class="text-xs text-purple-300/60">سيقوم الذكاء الاصطناعي بتوزيع هذا العدد تلقائياً بين أسئلة الاختيار من متعدد والأسئلة المقالية.</p>
+            </div>
+
+            <!-- Custom Counts Section (Hidden by default) -->
+            <div id="custom-counts-box" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-purple-500/20">
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold text-purple-200">🔢 عدد أسئلة الاختيار من متعدد</label>
                     <select id="mcq-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
@@ -219,10 +232,14 @@
 
         function toggleCountInputs() {
             const mode = document.getElementById('exam-mode').value;
+            const autoBox = document.getElementById('auto-count-box');
             const customBox = document.getElementById('custom-counts-box');
+            
             if (mode === 'custom') {
+                autoBox.classList.add('hidden');
                 customBox.classList.remove('hidden');
             } else {
+                autoBox.classList.remove('hidden');
                 customBox.classList.add('hidden');
             }
         }
@@ -264,7 +281,8 @@
 
             let criteriaText = "";
             if (examMode === 'auto') {
-                criteriaText = "اختر ونوع الأسئلة تلقائياً بشكل متوازن بين اختيار من متعدد (mcq) وأسئلة كتابية مقالية (written) بما يناسب حجم المحتوى.";
+                const totalAuto = document.getElementById('total-auto-count').value;
+                criteriaText = `قم بتوليد إجمالي عدد ${totalAuto} سؤالاً بشكل متنوع وتلقائي ومتوازن تماماً بين أسئلة الاختيار من متعدد (mcq) والأسئلة الكتابية المقالية (written).`;
             } else {
                 const mcqCount = document.getElementById('mcq-count').value;
                 const writtenCount = document.getElementById('written-count').value;
@@ -311,7 +329,7 @@ ${studyText.substring(0, 30000)}
 }
 `;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
