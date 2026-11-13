@@ -85,6 +85,7 @@
                 <h2 class="text-2xl font-bold text-purple-200">إعدادات الامتحان الذكي</h2>
             </div>
 
+            <!-- File Upload Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold text-purple-200">
@@ -92,7 +93,7 @@
                     </label>
                     <input type="file" id="study-file" accept=".pdf,.docx,.txt" 
                            class="w-full text-sm text-slate-300 file:mr-4 file:py-3 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-gradient-to-r file:from-purple-700 file:to-indigo-600 file:text-white hover:file:from-purple-600 hover:file:to-indigo-500 file:cursor-pointer cursor-pointer input-style rounded-2xl p-2.5">
-                    <p class="text-xs text-purple-300/60">يدعم ملفات PDF، Word (.docx)، و Text (جميع المواد).</p>
+                    <p class="text-xs text-purple-300/60">يدعم ملفات PDF، Word (.docx)، و Text.</p>
                 </div>
 
                 <div class="space-y-2">
@@ -105,28 +106,18 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-purple-500/20">
+            <!-- Exam Specs Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-purple-500/20">
+                <!-- Question Distribution Mode -->
                 <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-purple-200">🔢 عدد أسئلة الاختيار من متعدد</label>
-                    <select id="mcq-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
-                        <option value="0" class="bg-[#141123]">0 أسئلة</option>
-                        <option value="5" class="bg-[#141123]">5 أسئلة</option>
-                        <option value="10" selected class="bg-[#141123]">10 أسئلة</option>
-                        <option value="15" class="bg-[#141123]">15 سؤالاً</option>
-                        <option value="20" class="bg-[#141123]">20 سؤالاً</option>
+                    <label class="block text-sm font-semibold text-purple-200">📊 نظام توزيع الأسئلة</label>
+                    <select id="exam-mode" onchange="toggleCountInputs()" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
+                        <option value="auto" selected class="bg-[#141123]">✨ متنوع تلقائياً (الذكاء الاصطناعي يحدد الخليط المناسب)</option>
+                        <option value="custom" class="bg-[#141123]">⚙️ تحديد عدد الأسئلة يدوياً (إلكتروني + كتابي)</option>
                     </select>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-purple-200">📝 عدد الأسئلة الكتابية (المقالية)</label>
-                    <select id="written-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
-                        <option value="0" class="bg-[#141123]">0 أسئلة</option>
-                        <option value="5" selected class="bg-[#141123]">5 أسئلة</option>
-                        <option value="10" class="bg-[#141123]">10 أسئلة</option>
-                        <option value="15" class="bg-[#141123]">15 سؤالاً</option>
-                    </select>
-                </div>
-
+                <!-- Exam Time -->
                 <div class="space-y-2">
                     <label class="block text-sm font-semibold text-purple-200">⏱️ مدة الامتحان</label>
                     <select id="exam-time" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
@@ -139,8 +130,32 @@
                 </div>
             </div>
 
-            <input type="hidden" id="api-key" value="AQ.Ab8RN6KUsWufOv8biUh84nKX497IJHdsXyzme08wLmFFgCuXlA">
+            <!-- Custom Counts Section -->
+            <div id="custom-counts-box" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-purple-500/20">
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-purple-200">🔢 عدد أسئلة الاختيار من متعدد</label>
+                    <select id="mcq-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
+                        <option value="5">5 أسئلة</option>
+                        <option value="10" selected>10 أسئلة</option>
+                        <option value="15">15 سؤالاً</option>
+                        <option value="20">20 سؤالاً</option>
+                    </select>
+                </div>
 
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-purple-200">📝 عدد الأسئلة الكتابية (المقالية)</label>
+                    <select id="written-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
+                        <option value="0">0 أسئلة</option>
+                        <option value="5" selected>5 أسئلة</option>
+                        <option value="10">10 أسئلة</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Pre-configured API Key -->
+            <input type="hidden" id="api-key" value="AQ.Ab8RN6I6tjqwKibfWueOjb-AO_OTS8cvEpmCsJw11fk9RGCB_Q">
+
+            <!-- Generate Button -->
             <div class="pt-4 text-center">
                 <button onclick="generateExam()" class="w-full md:w-auto px-12 py-4 bg-gradient-to-r from-purple-700 via-indigo-600 to-amber-500 hover:from-purple-600 hover:to-amber-400 text-white font-black rounded-2xl shadow-xl shadow-purple-900/40 transition transform active:scale-95 cursor-pointer text-lg tracking-wide border border-purple-400/30">
                     ✨ ابدأ توليد الامتحان الآن
@@ -148,14 +163,16 @@
             </div>
         </div>
 
+        <!-- Loading State -->
         <div id="loading-section" class="hidden text-center py-24 space-y-6 card-glass rounded-3xl my-6">
             <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-amber-400"></div>
             <div class="space-y-2">
                 <h3 class="text-2xl font-bold text-purple-200">جاري قراءة الملف وتجهيز الأسئلة بدقة...</h3>
-                <p class="text-purple-300/70 text-sm">يقوم النظام الآن بتخصيص العدد المحدد للأسئلة الإلكترونية والكتابية.</p>
+                <p class="text-purple-300/70 text-sm">يقوم النظام الآن بصياغة الأسئلة الذكية وتجهيز طرق الحل.</p>
             </div>
         </div>
 
+        <!-- Step 2: Exam Taking Section -->
         <div id="exam-section" class="hidden space-y-6">
             <div class="card-glass rounded-2xl p-4 md:p-5 flex flex-wrap items-center justify-between shadow-xl sticky top-4 z-50 border border-purple-500/30">
                 <div class="flex items-center gap-4">
@@ -170,6 +187,7 @@
             <div id="questions-container" class="space-y-6"></div>
         </div>
 
+        <!-- Step 3: Results Section -->
         <div id="result-section" class="hidden card-glass rounded-3xl p-6 md:p-10 space-y-8 shadow-2xl">
             <div class="text-center space-y-4">
                 <h2 class="text-3xl font-black gold-shimmer">نتيجة تقييم أم تهاني</h2>
@@ -199,6 +217,16 @@
         let timerInterval = null;
         let timeLeftSeconds = 0;
 
+        function toggleCountInputs() {
+            const mode = document.getElementById('exam-mode').value;
+            const customBox = document.getElementById('custom-counts-box');
+            if (mode === 'custom') {
+                customBox.classList.remove('hidden');
+            } else {
+                customBox.classList.add('hidden');
+            }
+        }
+
         async function extractTextFromFile(file) {
             if (!file) return "";
             const ext = file.name.split('.').pop().toLowerCase();
@@ -225,8 +253,7 @@
         async function generateExam() {
             const studyFile = document.getElementById('study-file').files[0];
             const syllabusFile = document.getElementById('syllabus-file').files[0];
-            const mcqCount = parseInt(document.getElementById('mcq-count').value);
-            const writtenCount = parseInt(document.getElementById('written-count').value);
+            const examMode = document.getElementById('exam-mode').value;
             const durationMinutes = parseInt(document.getElementById('exam-time').value);
             const apiKey = document.getElementById('api-key').value.trim();
 
@@ -235,9 +262,13 @@
                 return;
             }
 
-            if (mcqCount === 0 && writtenCount === 0) {
-                alert('يرجى تحديد عدد الأسئلة (اختيار من متعدد أو كتابي) على الأقل!');
-                return;
+            let criteriaText = "";
+            if (examMode === 'auto') {
+                criteriaText = "اختر ونوع الأسئلة تلقائياً بشكل متوازن بين اختيار من متعدد (mcq) وأسئلة كتابية مقالية (written) بما يناسب حجم المحتوى.";
+            } else {
+                const mcqCount = document.getElementById('mcq-count').value;
+                const writtenCount = document.getElementById('written-count').value;
+                criteriaText = `عدد أسئلة الاختيار من متعدد المطلوبة: ${mcqCount}، وعدد الأسئلة الكتابية المقالية المطلوبة: ${writtenCount}.`;
             }
 
             document.getElementById('config-section').classList.add('hidden');
@@ -252,10 +283,9 @@
 مهمتك توليد امتحان دقيق ومباشر بناءً على محتوى الملف المرفق أدناه.
 الأسئلة يجب أن تكون مباشرة من محتوى النص تماماً ولا تتضمن إحالات لصفحات خارجية.
 
-معايير الامتحان المطلوب:
-1. عدد أسئلة الاختيار من متعدد (mcq): ${mcqCount} سؤالاً.
-2. عدد الأسئلة الكتابية المقالية (written): ${writtenCount} سؤالاً.
-3. هيكل الامتحان (إن وجد): ${syllabusText}
+معايير وتوجيهات الامتحان:
+1. ${criteriaText}
+2. هيكل الامتحان (إن وجد): ${syllabusText}
 
 محتوى المادة الدراسية:
 ${studyText.substring(0, 30000)}
