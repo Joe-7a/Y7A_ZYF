@@ -97,7 +97,7 @@
                 </div>
                 <input type="password" id="api-key" oninput="saveApiKey()" placeholder="الصق مفتاح الـ API هنا (AIza...)" 
                        class="w-full input-style rounded-xl p-3.5 text-slate-200 font-mono text-sm">
-                <p class="text-xs text-purple-300/60">ضعه مرة واحدة فقط وسيتم حفظه في متصفحك تلقائياً ولن يُطلب منك مجدداً.</p>
+                <p class="text-xs text-purple-300/60">ضعه مرة واحدة فقط وسيتم حفظه في متصفحك تلقائياً.</p>
             </div>
 
             <!-- File Upload Grid -->
@@ -149,13 +149,11 @@
             <div id="auto-count-box" class="space-y-2 pt-2 border-t border-purple-500/20">
                 <label class="block text-sm font-semibold text-amber-300">🎯 العدد الإجمالي للأسئلة المتنوعة</label>
                 <select id="total-auto-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
-                    <option value="5">5 أسئلة (خليط سريع)</option>
-                    <option value="10" selected>10 أسئلة (متوازن)</option>
+                    <option value="5">5 أسئلة (خليط سريع جداً)</option>
+                    <option value="10" selected>10 أسئلة (متوازن ومثالي)</option>
                     <option value="15">15 سؤالاً (شامل)</option>
-                    <option value="20">20 سؤالاً (مكثف)</option>
-                    <option value="30">30 سؤالاً (مراجعة نهائية)</option>
                 </select>
-                <p class="text-xs text-purple-300/60">سيقوم الذكاء الاصطناعي بتوزيع هذا العدد تلقائياً بين أسئلة الاختيار من متعدد والأسئلة المقالية.</p>
+                <p class="text-xs text-purple-300/60">نصيحة للسرعة: اختر 5 أو 10 أسئلة لتظهر النتيجة في ثوانٍ معدودة وبدقة عالية.</p>
             </div>
 
             <!-- Custom Counts Section (Hidden by default) -->
@@ -165,8 +163,6 @@
                     <select id="mcq-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
                         <option value="5">5 أسئلة</option>
                         <option value="10" selected>10 أسئلة</option>
-                        <option value="15">15 سؤالاً</option>
-                        <option value="20">20 سؤالاً</option>
                     </select>
                 </div>
 
@@ -174,8 +170,7 @@
                     <label class="block text-sm font-semibold text-purple-200">📝 عدد الأسئلة الكتابية (المقالية)</label>
                     <select id="written-count" class="w-full input-style rounded-xl p-3.5 text-slate-200 font-medium cursor-pointer">
                         <option value="0">0 أسئلة</option>
-                        <option value="5" selected>5 أسئلة</option>
-                        <option value="10">10 أسئلة</option>
+                        <option value="3" selected>3 أسئلة</option>
                     </select>
                 </div>
             </div>
@@ -192,8 +187,8 @@
         <div id="loading-section" class="hidden text-center py-24 space-y-6 card-glass rounded-3xl my-6">
             <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-amber-400"></div>
             <div class="space-y-2">
-                <h3 class="text-2xl font-bold text-purple-200">جاري قراءة الملف وتجهيز الأسئلة بدقة...</h3>
-                <p class="text-purple-300/70 text-sm">يقوم النظام الآن بصياغة الأسئلة الذكية وتجهيز طرق الحل.</p>
+                <h3 class="text-2xl font-bold text-purple-200">جاري قراءة الملف وتجهيز الأسئلة بدقة فائقة...</h3>
+                <p class="text-purple-300/70 text-sm">يتم استخراج المفاهيم العلمية بدقة لمنع أي أسئلة عشوائية.</p>
             </div>
         </div>
 
@@ -242,7 +237,6 @@
         let timerInterval = null;
         let timeLeftSeconds = 0;
 
-        // Load saved API key automatically on page load
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('om_tahani_gemini_key');
             if (savedKey) {
@@ -304,7 +298,9 @@
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                 let fullText = "";
-                for (let i = 1; i <= pdf.numPages; i++) {
+                // Read up to first 15 pages for speed and token optimization
+                const maxPages = Math.min(pdf.numPages, 15);
+                for (let i = 1; i <= maxPages; i++) {
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
                     fullText += textContent.items.map(item => item.str).join(' ') + "\n";
@@ -330,7 +326,6 @@
                 return;
             }
 
-            // Ensure key is saved before starting
             localStorage.setItem('om_tahani_gemini_key', apiKey);
             updateSavedUI(true);
 
@@ -342,11 +337,11 @@
             let criteriaText = "";
             if (examMode === 'auto') {
                 const totalAuto = document.getElementById('total-auto-count').value;
-                criteriaText = `قم بتوليد إجمالي عدد ${totalAuto} سؤالاً بشكل متنوع وتلقائي ومتوازن تماماً بين أسئلة الاختيار من متعدد (mcq) والأسئلة الكتابية المقالية (written).`;
+                criteriaText = `قم بتوليد إجمالي عدد ${totalAuto} أسئلة متنوعة ومتوازنة تماماً بين الاختيار من متعدد والأسئلة المقالية.`;
             } else {
                 const mcqCount = document.getElementById('mcq-count').value;
                 const writtenCount = document.getElementById('written-count').value;
-                criteriaText = `عدد أسئلة الاختيار من متعدد المطلوبة: ${mcqCount}، وعدد الأسئلة الكتابية المقالية المطلوبة: ${writtenCount}.`;
+                criteriaText = `عدد أسئلة الاختيار من متعدد: ${mcqCount}، وعدد الأسئلة المقالية: ${writtenCount}.`;
             }
 
             document.getElementById('config-section').classList.add('hidden');
@@ -354,36 +349,37 @@
 
             try {
                 const studyText = await extractTextFromFile(studyFile);
-                const syllabusText = syllabusFile ? await extractTextFromFile(syllabusFile) : "لا يوجد هيكل إضافي، اعتمد على محتوى الملف مباشرة.";
+                const syllabusText = syllabusFile ? await extractTextFromFile(syllabusFile) : "لا يوجد هيكل إضافي.";
 
+                // Optimized and strict prompt to ensure precise, high-quality questions
                 const prompt = `
-أنت نظام ذكي صانع للامتحانات تابع لمنصة "أم تهاني لتجنب الدور الثاني".
-مهمتك توليد امتحان دقيق ومباشر بناءً على محتوى الملف المرفق أدناه.
-الأسئلة يجب أن تكون مباشرة من محتوى النص تماماً ولا تتضمن إحالات لصفحات خارجية.
+أنت أستاذ ومستشار خبير في إعداد الامتحانات لمنصة "أم تهاني لتجنب الدور الثاني".
+مهمتك استخراج أسئلة دقيقة، علمية، وعميقة مأخوذة حصرياً وبشكل مباشر من نص المادة الدراسية المرفق أدناه.
+تجنب تماماً الأسئلة السطحية أو المبهمة. يجب أن تكون الأسئلة مباشرة وواضحة وتقيس الفهم الحقيقي للمادة.
 
-معايير وتوجيهات الامتحان:
+معايير التوليد:
 1. ${criteriaText}
-2. هيكل الامتحان (إن وجد): ${syllabusText}
+2. الهيكل: ${syllabusText}
 
 محتوى المادة الدراسية:
-${studyText.substring(0, 30000)}
+${studyText.substring(0, 20000)}
 
-قم بإرجاع النتيجة حصرياً على هيئة كائن JSON بالشكل التالي ودون أي نصوص إضافية قبله أو بعده:
+أجب حصرياً بصيغة كائن JSON دون أي نصوص إضافية قبله أو بعده، بالشكل التالي:
 {
   "questions": [
     {
       "id": 1,
-      "type": "mcq", 
-      "question": "نص السؤال المباشر هنا؟",
+      "type": "mcq",
+      "question": "صيغة السؤال الواضح والدقيق من النص؟",
       "options": ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"],
       "correctAnswer": "الخيار أ",
-      "explanation": "شرح وطريقة حل هذا السؤال وتوضيح سبب صحة الإجابة بالتفصيل."
+      "explanation": "شرح علمي مفصل يوضح سبب اختيار هذه الإجابة استناداً للمادة."
     },
     {
       "id": 2,
       "type": "written",
-      "question": "نص السؤال المقالي الكتابي هنا؟",
-      "modelAnswer": "الإجابة النموذجية أو النقاط المتوقعة لتصحيح إجابة الطالب."
+      "question": "صيغة السؤال المقالي المباشر؟",
+      "modelAnswer": "الإجابة النموذجية والعلمية المتكاملة."
     }
   ]
 }
@@ -490,6 +486,7 @@ ${studyText.substring(0, 30000)}
             let totalMCQ = 0;
             let feedbackHtml = '';
 
+            examData.questions.questionsub = examData.questions; // helper fix
             examData.questions.forEach((q, index) => {
                 if (q.type === 'mcq') {
                     totalMCQ++;
@@ -526,7 +523,7 @@ ${studyText.substring(0, 30000)}
             document.getElementById('result-section').classList.remove('hidden');
             
             if (totalMCQ > 0) {
-                document.getElementById('score-badge').textContent = `درجة الاختيار من متعدد: ${score} / ${totalMCQ}`;
+                document.getElementById('score-badge')->textContent = `درجة الاختيار من متعدد: ${score} / ${totalMCQ}`;
             } else {
                 document.getElementById('score-badge').textContent = `تم تسليم الامتحان الكتابي بنجاح`;
             }
